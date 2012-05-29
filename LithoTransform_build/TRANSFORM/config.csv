@@ -1,0 +1,5 @@
+MeterPerMapUnit	0.0001	--> how many meters per map unit (i.e.: [m/°])
+width_max	50	----------> width of all lithological columns in pixels [px]
+height_max	1000	------> height of the biggest lithological column of whole dataset in pixel [px]
+inverse	1	--------------> choose whether to plot strata inverse (1) or normal (0) as given by dataset
+QGIS-fix	1	---------->	choose whether to use fix for later plotting in QGIS (1) or not (0) -> changes world files so that litho-column is plottet one of it's own height below original position to fit graphically under the real position in QGIS
