@@ -1,0 +1,78 @@
+_______USER MANUAL______________________________________________________________
+This program was originally made by Florian R. Klein.
+If you have any questions and suggestions don't hestitate
+to contact me via eMail (torpedoente@googlemail.com).
+________________________________________________________________________________
+
+[introduction]
+"LithoTransform" is used to create pictures of lithostratigraphic columns (png-
+-format) and their respective world files (pgw-format) as georeference. All 
+config- and your data-csv-file should be placed in the "TRANSFORM"-folder.
+
+The whole folder provides real examples for the configuration of the program
+and the input of your own data. For further information read the following
+descriptions:
+
+[config.csv]
+To set some important configurations you may open "config.csv". The
+names, values and descriptions of the entries are {tab}-seperated.
+This shouldn't be changed as in any other file used by the program.
+"MetersPerMapUnit"	--> how many meters per map unit of your projection
+						(i.e. "0.001"[m/°])
+"width_max"			--> width of all lithological columns in pixels [px]
+						(for now there is no option to assign different
+						widths to different columns or litho-units)
+"height_max"		--> height of the biggest lithological column of 
+						whole dataset in pixel [px]		
+"inverse"			--> choose whether to plot strata inverse (1) or 
+						normal (0) as given by dataset (inverse is amongst
+						other things important for the following "QGIS_fix")
+"QGIS_fix"			--> choose whether to use fix for later plotting in QGIS 
+						(1) or not (0) -> changes world files so that litho-
+						column is plottet one of it's own height below original 
+						position to fit graphically under the real position in 
+						QGIS --> take care to also activate "inverse" for this
+						fix to be complete
+
+[data.csv]						
+To aquire a successfull run of the program you have to provide a file
+called "data.csv" which contains your inputdata in the given format:
+There are no text-limiters ("" are often used as default by many spread-
+sheet-software) but a {tab}-column-delimiter. Do not use another! The
+first line of the file must contain at least the following entries in
+any order: 
+"Nr."			--> number or name of location (all litho-units share of 
+					one locaito share the same Nr.; pictures and world 
+					files will use these numbers or names as file names)
+"X" and "Y"		--> the X- and Y-coordinates of each location (can only be in
+					format of a number, i.e. "-31.22" or "5120000")
+"Depth_max"		--> maximal depth of each locations lithological column
+"From" and "To"	--> From where To which depth in the litho-column your given
+					unit reaches (i.e. from "5.1" to "10.22" meters depth)
+Lithology		--> lithology of your unit (i.e. "marl", "sandy clay")
+Further columns with different names are not supported and will be ignored
+by the program.
+
+[litho.csv]
+To change colors of your strata open and edit "litho.csv". The colors
+are given in hexadecimal-format. A {tab}-delimiter is used to seperate
+the color from the name of their respective lithology. Take care that
+you spell the lithologies here exactly like in your data.csv and don't
+miss some!
+
+[Java]
+This program needs the Java Virtual Machine to function. Be sure to have 
+the newest version of Java installed. If something doe not function 
+correctly, please consider get the newest Java-Version from http://www.oracle.com. 
+
+[starting the program]
+Just doubleblick "LithoTransform.jar" in the same folder as the manual.
+Alternatively open your command prompt (i.e. cmd.exe in Windows). There
+you open the directory with command cd "the whole path to the directory"
+(without the ""). Now you can use the command "java -jar LithoTransform"
+to start the program. This will also give you some information about
+what the program is doing (shown in the command prompt). After starting
+LithoTransform.jar a blue progress bar on red background will show how
+many of all lithologies have already been drawn. When the program is
+finished the whole display will be green and you can close the window by
+pressing the x-button or in another way suiting your needs.
