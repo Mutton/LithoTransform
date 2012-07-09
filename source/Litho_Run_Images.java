@@ -42,7 +42,9 @@ public class Litho_Run_Images implements Runnable {
     String Quarter = null;
     
     BufferedImage buffImage;
-       
+    Graphics2D g2D;
+    
+    
     Litho_Run_Images(){
         
     }
@@ -103,6 +105,7 @@ public class Litho_Run_Images implements Runnable {
             lithoColor = Color.decode("#"+lithoHex); // finally set color of Lithology
 //            ratio_PixelMeter = (double) height_max/Depth_max;
             
+            // opens existing images and add 1 unit each time, saving the image again afterwards
             rendImage = createImage();
             saveImage();
             
@@ -121,10 +124,10 @@ public class Litho_Run_Images implements Runnable {
         if(searchFile.exists()){
             boolean deletionSuccess = searchFile.delete();
             if(deletionSuccess == false){
-                System.out.println("Litho_Run_Images: wasn't able to delete existing file "+Litho_Run_RW.path_main+Nr+".png");
+                System.out.println("Litho_Run_Images: wasn't able to delete existing file "+inputFile);
             }
             else{
-                System.out.println("Litho_Run_Images: deleted existing file "+Litho_Run_RW.path_main+Nr+".png");
+                System.out.println("Litho_Run_Images: deleted existing file "+inputFile);
             }
         }
     }
@@ -143,16 +146,20 @@ public class Litho_Run_Images implements Runnable {
             buffImage = new BufferedImage(width_max, (int) Math.round(Depth_max*ratio_PixelMeter), BufferedImage.TYPE_INT_RGB);
         }
          
-        Graphics2D g2D = buffImage.createGraphics();
+        g2D = buffImage.createGraphics();
         // draw everything hereafter
         g2D.setColor(lithoColor);
         // draw litho-rectangles in normal order
         if(Litho_Run_RW.configValues[3] == 0){
             g2D.fillRect(0, (int)Math.round(From*ratio_PixelMeter), width_max, (int)Math.round((To-From)*ratio_PixelMeter));
+            // closes possible black gaps between units due to rounding/reduction to integer
+            roundedPxCorrection(0);
         }
         // draw litho rectangles in inverse order for QGIS
         if(Litho_Run_RW.configValues[3] == 1){
             g2D.fillRect(0, (int)Math.round((Depth_max-To)*ratio_PixelMeter), width_max, (int)Math.round((To-From)*ratio_PixelMeter));
+            // closes possible black gaps between units due to rounding/reduction to integer
+            roundedPxCorrection(1);
         }
         // graphics2D no longer needed and return the Image
         g2D.dispose();
@@ -160,7 +167,54 @@ public class Litho_Run_Images implements Runnable {
         return buffImage;
     }
     
+    public void roundedPxCorrection(int option){
+        // maybe pass on only small/necessary portion of whole graphics
+        // to speed up progress
+        if(option == 0){
+            if((int)Math.round(From*ratio_PixelMeter)-1 >= 0){
+                try{
+                    if(new Color(buffImage.getRGB(1,(int)Math.round(From*ratio_PixelMeter)-1)).equals(Color.BLACK)){
+                        g2D.fillRect(0, (int)Math.round(From*ratio_PixelMeter)-1, width_max, 1);
+                    }
+                }catch(ArrayIndexOutOfBoundsException e){
+                    
+                }
+            }
+            if((int)Math.round(To*ratio_PixelMeter)+1 <= (int)Math.round(Depth_max*ratio_PixelMeter)){
+                try{
+                    if(new Color(buffImage.getRGB(1,(int)Math.round(To*ratio_PixelMeter)+1)).equals(Color.BLACK)){
+                        g2D.fillRect(0, (int)Math.round(To*ratio_PixelMeter)+1, width_max, 1);
+                    }
+                }catch(ArrayIndexOutOfBoundsException e){
+                    
+                }
+            }
+        }
+        if(option == 1){
+            if((int)Math.round((Depth_max-To)*ratio_PixelMeter)-1 >= 0){
+                try{
+                    if(new Color(buffImage.getRGB(1,(int)Math.round((Depth_max-To)*ratio_PixelMeter)-1)).equals(Color.BLACK)){
+                        g2D.fillRect(0, (int)Math.round((Depth_max-To)*ratio_PixelMeter)-1, width_max, 1);
+                    }
+                }catch(ArrayIndexOutOfBoundsException e){
+                    
+                }
+            }
+//            System.out.println((int)Math.round((Depth_max-From)*ratio_PixelMeter)+1+" <= "+(int)Math.round(Depth_max*ratio_PixelMeter));
+            if((int)Math.round((Depth_max-From)*ratio_PixelMeter)+1 <= (int)Math.round(Depth_max*ratio_PixelMeter)){
+                try{
+                    if(new Color(buffImage.getRGB(1,(int)Math.round((Depth_max-From)*ratio_PixelMeter)+1)).equals(Color.BLACK)){
+                    g2D.fillRect(0, (int)Math.round((Depth_max-From)*ratio_PixelMeter)+1, width_max, 1);
+                    }
+                }catch(ArrayIndexOutOfBoundsException e){
+                    
+                }
+            }
+        }
+    }
+    
     public void saveImage(){
+        System.out.println("Litho_Run_Images: saving image file for Nr. "+Nr);
         try {
             File file = new File(Litho_Run_RW.getPathMain()+Nr+".png");
             ImageIO.write(rendImage, "png", file);
